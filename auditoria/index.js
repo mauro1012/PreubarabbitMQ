@@ -4,57 +4,49 @@ const { MongoClient } = require('mongodb');
 
 const RABBIT_URL = process.env.RABBIT_URL || 'amqp://user:password@rabbitmq';
 const MONGO_URL = process.env.MONGO_URL || 'mongodb://mongodb:27017';
+const DB_NAME = 'db_auditoria';
 
 async function iniciarAuditoria() {
-    let dbClient;
-    let conectado = false;
-
-    // Bucle de reintento para MongoDB
-    while (!conectado) {
-        try {
-            dbClient = await MongoClient.connect(MONGO_URL);
-            conectado = true;
-            console.log('✅ Conectado a MongoDB con éxito');
-        } catch (error) {
-            console.error('❌ Error conectando a MongoDB, reintentando en 5s...');
-            await new Promise(resolve => setTimeout(resolve, 5000));
-        }
-    }
-
-    const db = dbClient.db('db_auditoria');
-    const coleccion = db.collection('logs');
-
     try {
+        // Conexión a MongoDB
+        const client = await MongoClient.connect(MONGO_URL);
+        const db = client.db(DB_NAME);
+        const logsCol = db.collection('logs');
+        console.log('Conectado a MongoDB');
+
+        // Conexión a RabbitMQ
         const connection = await amqp.connect(RABBIT_URL);
         const channel = await connection.createChannel();
 
         const exchange = 'logs_exchange';
         await channel.assertExchange(exchange, 'fanout', { durable: false });
 
-        // Creamos una cola temporal que se destruye al cerrar
+        // Crear cola temporal automática
         const q = await channel.assertQueue('', { exclusive: true });
-        
-        // Unimos la cola al exchange (Binding)
-        await channel.bindQueue(q.queue, exchange, '');
+        console.log(` Esperando mensajes en cola: ${q.queue}`);
 
-        console.log('🚀 Esperando mensajes en RabbitMQ...');
+        // Unir la cola al exchange
+        await channel.bindQueue(q.queue, exchange, '');
 
         channel.consume(q.queue, async (msg) => {
             if (msg !== null) {
                 const contenido = JSON.parse(msg.content.toString());
-                
+                console.log(' Mensaje recibido:', contenido);
+
                 // Guardar en MongoDB
-                const resultado = await coleccion.insertOne({
+                await logsCol.insertOne({
                     ...contenido,
                     procesado_el: new Date()
                 });
-
-                console.log(`📥 Log guardado en Mongo con ID: ${resultado.insertedId}`);
+                console.log('Log guardado en Mongo');
+                
                 channel.ack(msg);
             }
         });
+
     } catch (error) {
-        console.error('❌ Error en RabbitMQ:', error);
+        console.error(' Error en Auditoría, reintentando en 5s...', error.message);
+        setTimeout(iniciarAuditoria, 5000);
     }
 }
 
