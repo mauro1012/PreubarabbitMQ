@@ -33,7 +33,7 @@ resource "random_string" "suffix" {
 
 # 3. SEGURIDAD (Security Groups)
 resource "aws_security_group" "sg_rabbit_alb" {
-  name        = "sg-rabbitmq-alb-${random_string.suffix.result}"
+  name        = "msg-rabbitmq-alb-${random_string.suffix.result}"
   description = "Acceso publico al balanceador"
   vpc_id      = data.aws_vpc.default.id
 
@@ -53,7 +53,7 @@ resource "aws_security_group" "sg_rabbit_alb" {
 }
 
 resource "aws_security_group" "sg_rabbit_nodes" {
-  name        = "sg-rabbitmq-nodes-${random_string.suffix.result}"
+  name        = "msg-rabbitmq-nodes-${random_string.suffix.result}"
   description = "Acceso interno para RabbitMQ y App"
   vpc_id      = data.aws_vpc.default.id
 
