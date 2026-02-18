@@ -1,0 +1,14 @@
+{
+  "name": "gateway-rabbit",
+  "version": "1.0.0",
+  "description": "Productor de eventos para RabbitMQ",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "amqplib": "^0.10.3",
+    "express": "^4.18.2",
+    "dotenv": "^16.3.1"
+  }
+}

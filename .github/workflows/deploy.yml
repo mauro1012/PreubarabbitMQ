@@ -1,0 +1,59 @@
+name: "Deploy RabbitMQ Infrastructure"
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # Construcción del Gateway
+      - name: Build and Push Gateway
+        run: |
+          docker build -t ${{ secrets.DOCKER_USER }}/gateway-rabbit:latest ./gateway
+          docker push ${{ secrets.DOCKER_USER }}/gateway-rabbit:latest
+
+      # Construcción de Auditoría
+      - name: Build and Push Auditoria
+        run: |
+          docker build -t ${{ secrets.DOCKER_USER }}/auditoria-rabbit:latest ./auditoria
+          docker push ${{ secrets.DOCKER_USER }}/auditoria-rabbit:latest
+
+  terraform:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    env:
+      TF_VAR_aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      TF_VAR_aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      TF_VAR_aws_session_token: ${{ secrets.AWS_SESSION_TOKEN }}
+      TF_VAR_docker_user: ${{ secrets.DOCKER_USER }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+
+      - name: Terraform Init
+        working-directory: ./terraform
+        run: terraform init
+
+      - name: Terraform Plan
+        working-directory: ./terraform
+        run: terraform plan
+
+      - name: Terraform Apply
+        working-directory: ./terraform
+        run: terraform apply -auto-approve
