@@ -1,5 +1,5 @@
 
-# VARIABLES DE CONEXIÓN AWS (ACADEMY)
+
 
 variable "aws_region" {
   description = "Región de AWS donde se desplegará la infraestructura de RabbitMQ"
