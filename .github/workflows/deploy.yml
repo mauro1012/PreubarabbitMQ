@@ -18,7 +18,7 @@ jobs:
           username: ${{ secrets.DOCKER_USER }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # Construcción del Gateway
+      # Construcción del Gateway1
       - name: Build and Push Gateway
         run: |
           docker build -t ${{ secrets.DOCKER_USER }}/gateway-rabbit:latest ./gateway
