@@ -5,7 +5,7 @@ provider "aws" {
 
 terraform {
   backend "s3" {
-    bucket  = "examen-suple-rabbitMQ-2026-mauro"
+    bucket  = "examen-suple-rabbitmq-2026"
     key     = "proyecto-rabbitmq-final/terraform.tfstate"
     region  = "us-east-1"
     encrypt = true
