@@ -1,17 +1,18 @@
 {
-  "name": "auditoria",
+  "name": "auditoria-rabbit",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
+    "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
+  "description": "Consumidor de eventos que guarda en MongoDB",
   "dependencies": {
-    "amqplib": "^0.10.9",
-    "dotenv": "^17.3.1",
-    "mongodb": "^7.1.0"
+    "amqplib": "^0.10.3",
+    "dotenv": "^16.3.1",
+    "mongoose": "^7.5.0"
   }
 }
