@@ -93,5 +93,7 @@ db.logs.find().pretty()
 6. La **Auditoría** inserta el documento final en **MongoDB**.
 
 ---
+## 5. Repositorios siguite
 
-**¿Te gustaría que agregue una sección de "Troubleshooting" (solución de problemas) por si falla la conexión al iniciar?**
+https://github.com/mauro1012/PreubaKafka.git
+
